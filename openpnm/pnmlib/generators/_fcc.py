@@ -16,7 +16,7 @@ def fcc(
     spacing=1,
     method='kdtree', 
     node_prefix='node', 
-    edge_prefix='edge'.
+    edge_prefix='edge',
 ):
     r"""
     Generate a face-centered cubic lattice
