@@ -26,6 +26,7 @@ __all__ = [
     "pores",
     "get_throats",
     "throats",
+    "get_indices",
     "filter_by_label",
     "num_throats",
     "num_pores",
@@ -53,7 +54,7 @@ def get_param_data(target, key=None):
     return params
 
 
-def get_prop_data(target, key='*', element=['pore', 'throat', 'conduit']):
+def get_prop_data(target, element=['pore', 'throat', 'conduit']):
     r"""
     Returns a dictionary containing only numerical arrays of the specified element(s)
     """
@@ -68,21 +69,32 @@ def get_prop_data(target, key='*', element=['pore', 'throat', 'conduit']):
     return props
 
 
-def get_label_data(target, key=None):
+def get_label_data(target, element=['pore', 'throat', 'conduit']):
     r"""
     Returns a dictionary containing only booolean arrays
     """
-    if key is None:
-        key = '*.*'
-    d = get_data(target, key)
+    if isinstance(element, str):
+        element = [element]
+    d = get_data(target, '*')
     labels = {}
     for k, v in d.items():
-        if (type(v) == np.ndarray) and (v.dtype == bool):
+        el, prop = k.split('.', 1)
+        if (el in element) and (v.dtype == bool):
             labels[k] = v
     return labels
 
 
-def flatten_dict(group):
+def flatten_dict(group, delim='/'):
+    r"""
+    Takes a nested `dict` and returns a flattened version with the specified delimiter between keys
+
+    Parameters
+    ----------
+    group : dict
+        A nested dictionary
+    delim : str
+        The character to use when joining nested keys
+    """
     # Taken from this SO answer https://stackoverflow.com/a/64717285, which has
     # LOTS of other suggestions.
     stack = list(group.items())
@@ -91,7 +103,7 @@ def flatten_dict(group):
         key, val = stack.pop()
         if isinstance(val, dict):
             for sub_key, sub_val in val.items():
-                stack.append((f"{key}/{sub_key}", sub_val))
+                stack.append((f"{key + delim + sub_key}", sub_val))
         else:
             ans[key] = val
     return ans
@@ -106,19 +118,19 @@ def _merge_dicts(d1, d2):
     return d2
 
 
-def _expand_dicts(d, k, v):
+def _expand_dicts(d, k, v, delim='/'):
     if '/' in k:
-        group, k = k.split('/', 1)
+        group, k = k.split(delim, 1)
         d[group] = _expand_dicts({}, k, v)
     else:
         d[k] = v
     return d
 
 
-def fold_dict(group):
+def fold_dict(group, delim='/'):
     d = {}
     for k, v in group.items():
-        d = _merge_dicts(d, _expand_dicts({}, k, v))
+        d = _merge_dicts(d, _expand_dicts({}, k, v, delim=delim))
     return d
 
 
@@ -465,10 +477,9 @@ def count(target, element):
         raise Exception('Multiple arrays with different length')
 
 
-def _get_indices(target, element, labels='all', mode='or'):
+def get_indices(target, element, labels='all', mode='or'):
     r"""
-    This is the actual method for getting indices, but should not be called
-    directly.  Use ``pores`` or ``throats`` instead.
+    
     """
     # Parse and validate all input values.
     element = _parse_element(target=target, element=element, single=True)
@@ -517,9 +528,9 @@ def _get_indices(target, element, labels='all', mode='or'):
     return ind
 
 
-def pores(target, labels='all', mode='or', asmask=False):
+def get_pores(target, labels='all', mode='or', asmask=False):
     r"""
-    Returns pore indicies where given labels exist, according to the logic
+    Returns pore indices where given labels exist, according to the logic
     specified by the ``mode`` argument.
 
     Parameters
@@ -577,7 +588,7 @@ def pores(target, labels='all', mode='or', asmask=False):
     return ind
 
 
-def throats(target, labels='all', mode='or', asmask=False):
+def get_throats(target, labels='all', mode='or', asmask=False):
     r"""
     Returns throat locations where given labels exist, according to the
     logic specified by the ``mode`` argument.
@@ -586,7 +597,7 @@ def throats(target, labels='all', mode='or', asmask=False):
     ----------
     labels : str or list[str]
         The throat label(s) whose locations are requested.  If omitted,
-        'all' throat inidices are returned.  This argument also accepts
+        'all' throat indices are returned.  This argument also accepts
         '*' for wildcard searches.
     mode : str
         Specifies how the query should be performed. The options are:
@@ -622,19 +633,19 @@ def throats(target, labels='all', mode='or', asmask=False):
     pores
 
     """
-    ind = _get_indices(target=target, element='throat', labels=labels, mode=mode)
+    ind = get_indices(target=target, element='throat', labels=labels, mode=mode)
     if asmask:
         ind = to_mask(target=target, throats=ind)
     return ind
 
 
-def get_pores(target, labels='all', mode='or', asmask=False):
-    Ps = pores(target=target, labels=labels, mode=mode, asmask=asmask)
+def pores(target, labels='all', mode='or', asmask=False):
+    Ps = get_pores(target=target, labels=labels, mode=mode, asmask=asmask)
     return Ps
 
 
-def get_throats(target, labels='all', mode='or', asmask=False):
-    Ts = throats(target=target, labels=labels, mode=mode, asmask=asmask)
+def throats(target, labels='all', mode='or', asmask=False):
+    Ts = get_throats(target=target, labels=labels, mode=mode, asmask=asmask)
     return Ts
 
 
@@ -750,7 +761,7 @@ def num_pores(target, labels='all', mode='or'):
 
     """
     # Count number of pores of specified type
-    Ps = _get_indices(target=target, labels=labels, mode=mode, element='pore')
+    Ps = get_indices(target=target, labels=labels, mode=mode, element='pore')
     Np = np.shape(Ps)[0]
     return Np
 
@@ -802,7 +813,7 @@ def num_throats(target, labels='all', mode='union'):
 
     """
     # Count number of pores of specified type
-    Ts = _get_indices(target=target, labels=labels, mode=mode, element='throat')
+    Ts = get_indices(target=target, labels=labels, mode=mode, element='throat')
     Nt = np.shape(Ts)[0]
     return Nt
 
