@@ -1,3 +1,4 @@
+# %%
 import openpnm as op
 from openpnm.models.physics import source_terms
 from openpnm.models import collections
@@ -30,6 +31,7 @@ pn.add_model_collection(collections.geometry.pyramids_and_cuboids,
 
 # FIXME: Must regenerate network models, otherwise, phase models will complain
 pn.regenerate_models()
+
 
 # Create phase and add phase/physics models
 air = op.phase.Air(network=pn, name="air")
@@ -67,3 +69,5 @@ rxn2.run()
 # Plot concentration profile
 fig, ax = plt.subplots()
 ax.pcolormesh(rxn.x.reshape([25, 25]))
+
+# %%

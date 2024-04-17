@@ -1,2 +1,2 @@
 from ._funcs import *
-from ._qupc import *
+from ._wqupc import *
