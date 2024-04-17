@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.sparse as sprs
-from openpnm._skgraph import settings, tools
+from openpnm import pnmlib
 
 
 __all__ = [
@@ -40,15 +40,15 @@ def add_nodes(network, new_coords):
     # of (2, 0) so the empty dimension is the wrong one since all the array
     # extending in this function occurs on the 1st axis.
     g = network
-    node_prefix = tools.get_node_prefix(g)
+    node_prefix = pnmlib.tools.get_node_prefix(g)
     coords = np.atleast_2d(new_coords)
     Nnew = coords.shape[0]
     for k, v in g.items():
         if k.startswith(node_prefix):
             dval = None
-            for t in settings.missing_values.keys():
+            for t in pnmlib.settings.missing_values.keys():
                 if v.dtype == t:
-                    dval = settings.missing_values[t]
+                    dval = pnmlib.settings.missing_values[t]
             blank = np.repeat(v[:1, ...], Nnew, axis=0)*dval
             blank.fill(dval)
             g[k] = np.concatenate((v, blank), axis=0).astype(v.dtype)
@@ -84,15 +84,15 @@ def add_edges(network, new_conns):
     # of (2, 0) so the empty dimension is the wrong one since all the array
     # extending in this function occurs on the 1st axis.
     g = network
-    edge_prefix = tools.get_edge_prefix(g)
+    edge_prefix = pnmlib.tools.get_edge_prefix(g)
     conns = np.atleast_2d(new_conns)
     Nnew = conns.shape[0]
     for k, v in g.items():
         if k.startswith(edge_prefix):
             dval = None
-            for t in settings.missing_values.keys():
+            for t in pnmlib.settings.missing_values.keys():
                 if v.dtype == t:
-                    dval = settings.missing_values[t]
+                    dval = pnmlib.settings.missing_values[t]
             blank = np.repeat(v[:1, ...], Nnew, axis=0)*dval
             blank.fill(dval)
             g[k] = np.concatenate((v, blank), axis=0).astype(v.dtype)
@@ -120,7 +120,7 @@ def trim_edges(network, inds):
 
     """
     g = network
-    edge_prefix = tools.get_edge_prefix(g)
+    edge_prefix = pnmlib.tools.get_edge_prefix(g)
     N_bonds = g[edge_prefix+'.conns'].shape[0]
     inds = np.atleast_1d(inds)
     keep = np.ones(N_bonds, dtype=bool)
@@ -151,8 +151,8 @@ def trim_nodes(network, inds):
         array renumbered so edges point to the updated node indices.
 
     """
-    node_prefix = tools.get_node_prefix(network)
-    edge_prefix = tools.get_edge_prefix(network)
+    node_prefix = pnmlib.tools.get_node_prefix(network)
+    edge_prefix = pnmlib.tools.get_edge_prefix(network)
     N_sites = network[node_prefix+'.coords'].shape[0]
     inds = np.atleast_1d(inds)
     if inds.dtype == bool:

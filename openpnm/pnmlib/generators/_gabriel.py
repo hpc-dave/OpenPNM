@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.spatial as sptl
-from openpnm._skgraph.generators import delaunay as _delaunay
+from openpnm import pnmlib
 
 
 __all__ = [
@@ -39,8 +39,13 @@ def gabriel(points=None, delaunay=None, shape=None, reflect=False,
 
     """
     if points is not None:
-        dn, tri = _delaunay(points=points, shape=shape, reflect=reflect,
-                            node_prefix=node_prefix, edge_prefix=edge_prefix)
+        dn, tri = pnmlib.generators.delaunay(
+            points=points,
+            shape=shape,
+            reflect=reflect,
+            node_prefix=node_prefix,
+            edge_prefix=edge_prefix,
+        )
     else:
         dn = delaunay
     # Find centroid or midpoint of each edge in conns

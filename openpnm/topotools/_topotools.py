@@ -5,7 +5,7 @@ from scipy.spatial import cKDTree
 from scipy.sparse import csgraph
 from scipy.spatial import ConvexHull
 from openpnm.utils import Workspace
-import openpnm._skgraph as skgr
+from openpnm import pnmlib
 
 
 logger = logging.getLogger(__name__)
@@ -44,46 +44,46 @@ __all__ = [
 
 
 def isoutside(**kwargs):
-    return skgr.tools.isoutside(**kwargs)
+    return pnmlib.tools.isoutside(**kwargs)
 
 
-isoutside.__doc__ = skgr.tools.isoutside.__doc__
+isoutside.__doc__ = pnmlib.tools.isoutside.__doc__
 
 
 def rotate_coords(network, **kwargs):
-    network['pore.coords'] = skgr.tools.rotate_coords(network.coords, **kwargs)
+    network['pore.coords'] = pnmlib.tools.rotate_coords(network.coords, **kwargs)
     return network
 
 
-rotate_coords.__doc__ = skgr.tools.rotate_coords.__doc__
+rotate_coords.__doc__ = pnmlib.tools.rotate_coords.__doc__
 
 
 def shear_coords(network, **kwargs):
-    network['pore.coords'] = skgr.tools.shear_coords(network.coords, **kwargs)
+    network['pore.coords'] = pnmlib.tools.shear_coords(network.coords, **kwargs)
     return network
 
 
-shear_coords.__doc__ = skgr.tools.shear_coords.__doc__
+shear_coords.__doc__ = pnmlib.tools.shear_coords.__doc__
 
 
 def template_sphere_shell(r_outer, r_inner=0):
-    return skgr.generators.tools.template_sphere_shell(r_outer, r_inner)
+    return pnmlib.generators.tools.template_sphere_shell(r_outer, r_inner)
 
 
 template_sphere_shell.__doc__ = \
-    skgr.generators.tools.template_sphere_shell.__doc__
+    pnmlib.generators.tools.template_sphere_shell.__doc__
 
 
 def template_cylinder_annulus(z, r_outer, r_inner=0):
-    return skgr.generators.tools.template_cylinder_annulus(z, r_outer, r_inner)
+    return pnmlib.generators.tools.template_cylinder_annulus(z, r_outer, r_inner)
 
 
 template_cylinder_annulus.__doc__ = \
-    skgr.generators.tools.template_cylinder_annulus.__doc__
+    pnmlib.generators.tools.template_cylinder_annulus.__doc__
 
 
 def generate_base_points(num_points, domain_size, reflect=True):
-    return skgr.generators.tools.generate_base_points(
+    return pnmlib.generators.tools.generate_base_points(
         num_points,
         domain_size,
         reflect,
@@ -91,43 +91,43 @@ def generate_base_points(num_points, domain_size, reflect=True):
 
 
 generate_base_points.__doc__ = \
-    skgr.generators.tools.generate_base_points.__doc__
+    pnmlib.generators.tools.generate_base_points.__doc__
 
 
 def reflect_base_points(points, domain_size):
-    return skgr.generators.tools.reflect_base_points(points, domain_size)
+    return pnmlib.generators.tools.reflect_base_points(points, domain_size)
 
 
 reflect_base_points.__doc__ = \
-    skgr.generators.tools.reflect_base_points.__doc__
+    pnmlib.generators.tools.reflect_base_points.__doc__
 
 
 def get_spacing(network):
-    return skgr.tools.get_cubic_spacing(network)
+    return pnmlib.tools.get_cubic_spacing(network)
 
 
-get_spacing.__doc__ = skgr.tools.get_cubic_spacing.__doc__
+get_spacing.__doc__ = pnmlib.tools.get_cubic_spacing.__doc__
 
 
 def get_shape(network):
-    return skgr.tools.get_cubic_shape(network)
+    return pnmlib.tools.get_cubic_shape(network)
 
 
-get_shape.__doc__ = skgr.tools.get_cubic_shape.__doc__
+get_shape.__doc__ = pnmlib.tools.get_cubic_shape.__doc__
 
 
 def filter_pores_by_z(network, pores, z):
-    return skgr.queries.filter_by_z(network=network, inds=pores, z=z)
+    return pnmlib.queries.filter_by_z(network=network, inds=pores, z=z)
 
 
-filter_pores_by_z.__doc__ = skgr.queries.filter_by_z.__doc__
+filter_pores_by_z.__doc__ = pnmlib.queries.filter_by_z.__doc__
 
 
 def find_interface_throats(network, P1, P2):
-    return skgr.queries.find_common_edges(network=network, inds_1=P1, inds_2=P2)
+    return pnmlib.queries.find_common_edges(network=network, inds_1=P1, inds_2=P2)
 
 
-find_interface_throats.__doc__ = skgr.queries.find_common_edges.__doc__
+find_interface_throats.__doc__ = pnmlib.queries.find_common_edges.__doc__
 
 
 def dimensionality(network):
@@ -151,7 +151,7 @@ def dimensionality(network):
     have the same values that axis is considered non-dimensional.
 
     """
-    return skgr.tools.dimensionality(network)
+    return pnmlib.tools.dimensionality(network)
 
 
 def trim(network, pores=[], throats=[]):

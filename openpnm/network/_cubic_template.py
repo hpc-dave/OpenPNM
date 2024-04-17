@@ -1,9 +1,7 @@
 import logging
 import numpy as np
 from openpnm.network import Network
-from openpnm._skgraph.generators import cubic_template
-from openpnm._skgraph.queries import find_coordination
-from openpnm._skgraph.tools import dimensionality, find_surface_nodes
+from openpnm import pnmlib
 
 
 __all__ = ['CubicTemplate']
@@ -41,16 +39,16 @@ class CubicTemplate(Network):
     def __init__(self, template, spacing=[1, 1, 1], label_surface_pores=False, **kwargs):
         super().__init__(**kwargs)
         template = np.atleast_3d(template)
-        net = cubic_template(template=template,
-                             spacing=spacing,
-                             node_prefix='pore',
-                             edge_prefix='throat')
+        net = pnmlib.generators.cubic_template(template=template,
+                                               spacing=spacing,
+                                               node_prefix='pore',
+                                               edge_prefix='throat')
         self.update(net)
         if not label_surface_pores:
             return
-        self['pore.surface'] = find_surface_nodes(self)
-        ndims = dimensionality(self).sum()
+        self['pore.surface'] = pnmlib.tools.find_surface_nodes(self)
+        ndims = pnmlib.tools.dimensionality(self).sum()
         max_neighbors = 6 if ndims == 3 else 4
-        num_neighbors = find_coordination(self, nodes=self.Ps)
+        num_neighbors = pnmlib.queries.find_coordination(self, nodes=self.Ps)
         mask_internal_surface = (num_neighbors < max_neighbors) & ~self["pore.surface"]
         self.set_label("pore.internal_surface", pores=mask_internal_surface)

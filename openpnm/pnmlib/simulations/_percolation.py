@@ -4,7 +4,7 @@ import numpy as np
 import scipy.sparse as sprs
 from scipy.sparse import csgraph
 
-from openpnm._skgraph.operations import split_edges
+from openpnm import pnmlib
 
 __all__ = [
     'trim_disconnected_clusters',
@@ -117,7 +117,7 @@ def mixed_percolation(
     occupied_sites,
     occupied_bonds
 ):  # pragma: no cover
-    new_conns = split_edges(conns)[0]
+    new_conns = pnmlib.operations.split_edges(conns)[0]
     new_sites = np.hstack((occupied_sites, occupied_bonds))
     s, b = site_percolation(conns=new_conns, occupied_sites=new_sites)
     s_labels = s[:occupied_sites.shape[0]]

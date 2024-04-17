@@ -5,8 +5,7 @@ from matplotlib import colors as mcolors
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.collections import LineCollection
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
-from openpnm._skgraph.tools import dimensionality
-from openpnm._skgraph.tools import get_node_prefix, get_edge_prefix
+from openpnm import pnmlib
 
 
 __all__ = [
@@ -86,12 +85,12 @@ def plot_edges(network,
     plot_coordinates
 
     """
-    node_prefix = get_node_prefix(network)
-    edge_prefix = get_edge_prefix(network)
+    node_prefix = pnmlib.tools.get_node_prefix(network)
+    edge_prefix = pnmlib.tools.get_edge_prefix(network)
     conns = network[edge_prefix+'.conns']
     coords = network[node_prefix+'.coords']
     Ts = np.arange(conns.shape[0]) if edges is None else edges
-    dim = dimensionality(network)
+    dim = pnmlib.tools.dimensionality(network)
     ThreeD = True if dim.sum() == 3 else False
     # Add a dummy axis for 1D networks
     if dim.sum() == 1:
@@ -209,10 +208,10 @@ def plot_nodes(network,
     plot_edges
 
     """
-    node_prefix = get_node_prefix(network)
+    node_prefix = pnmlib.tools.get_node_prefix(network)
     coords = network[node_prefix+'.coords']
     Ps = np.arange(coords.shape[0]) if nodes is None else nodes
-    dim = dimensionality(network)
+    dim = pnmlib.tools.dimensionality(network)
     ThreeD = True if dim.sum() == 3 else False
     # Add a dummy axis for 1D networks
     if dim.sum() == 1:

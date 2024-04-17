@@ -1,7 +1,6 @@
 import numpy as np
 from openpnm.network import Network
-from openpnm._skgraph.generators.tools import parse_points
-from openpnm._skgraph.generators import voronoi_delaunay_dual
+from openpnm import pnmlib
 from openpnm.utils import Docorator
 
 
@@ -71,7 +70,7 @@ class DelaunayVoronoiDual(Network):
         **kwargs
     ):
         super().__init__(**kwargs)
-        net, vor, tri = voronoi_delaunay_dual(
+        net, vor, tri = pnmlib.generators.voronoi_delaunay_dual(
             shape=shape,
             points=points,
             trim=trim,

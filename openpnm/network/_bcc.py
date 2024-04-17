@@ -3,7 +3,7 @@ from openpnm import topotools
 from openpnm.network import Network
 from openpnm.utils import Workspace
 from openpnm.utils import Docorator
-from openpnm._skgraph.generators import bcc
+from openpnm.pnmlib.generators import bcc
 
 
 docstr = Docorator()

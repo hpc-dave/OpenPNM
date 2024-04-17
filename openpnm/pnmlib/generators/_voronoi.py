@@ -1,8 +1,6 @@
 import numpy as np
 import scipy.spatial as sptl
-from openpnm._skgraph.tools import vor_to_am, isoutside
-from openpnm._skgraph.generators import tools
-from openpnm._skgraph.operations import trim_nodes
+from openpnm import pnmlib
 
 
 def voronoi(
@@ -56,21 +54,23 @@ def voronoi(
         The Voronoi tessellation object produced by ``scipy.spatial.Voronoi``
 
     """
-    points = tools.parse_points(points=points, shape=shape, reflect=reflect, f=f)
+    points = pnmlib.generators.tools.parse_points(
+        points=points, shape=shape, reflect=reflect, f=f)
     mask = ~np.all(points == 0, axis=0)
     # Perform tessellation
     vor = sptl.Voronoi(points=points[:, mask])
     for _ in range(relaxation):
-        points = tools.lloyd_relaxation(vor, mode='rigorous')
+        points = pnmlib.generators.tools.lloyd_relaxation(vor, mode='rigorous')
         # Reparse points
         d = {}
         d[node_prefix+'.coords'] = points
-        keep = ~isoutside(network=d, shape=shape)
+        keep = ~pnmlib.tools.isoutside(network=d, shape=shape)
         points = points[keep]
-        points = tools.parse_points(points=points, shape=shape, reflect=reflect)
+        points = pnmlib.tools.parse_points(
+            points=points, shape=shape, reflect=reflect)
         vor = sptl.Voronoi(points=points[:, mask])
     # Convert to adjecency matrix
-    coo = vor_to_am(vor)
+    coo = pnmlib.tools.vor_to_am(vor)
     # Write values to dictionary
     d = {}
     conns = np.vstack((coo.row, coo.col)).T
@@ -85,6 +85,6 @@ def voronoi(
         coords = pts
     d[node_prefix+'.coords'] = coords
     if trim:
-        hits = isoutside(d, shape=shape)
-        d = trim_nodes(d, hits)
+        hits = pnmlib.tools.isoutside(d, shape=shape)
+        d = pnmlib.operations.trim_nodes(d, hits)
     return d, vor

@@ -5,9 +5,7 @@ from collections import namedtuple
 import numpy as np
 from numba import jit, njit
 from tqdm.auto import tqdm
-
-from openpnm._skgraph.queries import qupc_initialize, qupc_reduce, qupc_update
-from openpnm._skgraph.simulations import bond_percolation, site_percolation
+from openpnm import pnmlib
 from openpnm.algorithms import Algorithm
 from openpnm.utils import Docorator
 
@@ -332,11 +330,15 @@ class InvasionPercolation(Algorithm):
         for i in tqdm(range(0, int(N), step_size), msg):
             if mode == 'bond':
                 i += 1
-                s, b = bond_percolation(conns=self.network.conns,
-                                        occupied_bonds=tseq > i)
+                s, b = pnmlib.simulations.bond_percolation(
+                    conns=self.network.conns,
+                    occupied_bonds=tseq > i,
+                )
             elif mode == 'site':
-                s, b = site_percolation(conns=self.network.conns,
-                                        occupied_sites=pseq > i)
+                s, b = pnmlib.simulations.site_percolation(
+                    conns=self.network.conns,
+                    occupied_sites=pseq > i,
+                )
             clusters = np.unique(s[self['pore.bc.outlet']])
             self['pore.trapped'] += np.isin(s, clusters, invert=True)*(pseq > i)
             self['throat.trapped'] += np.isin(b, clusters, invert=True)*(tseq > i)
@@ -386,7 +388,7 @@ def _find_trapped_pores(inv_seq, indices, indptr, outlets):
             if pore in outlets:
                 trapped_clusters[c] = False
                 # Also set all joined clusters to not trapped
-                cluster_map = qupc_reduce(cluster_map)
+                cluster_map = pnmlib.queries.qupc_reduce(cluster_map)
                 hits = np.where(cluster_map == cluster_map[c])[0]
                 trapped_clusters[hits] = False
             # If this cluster number is part of a trapped cluster then
@@ -397,8 +399,8 @@ def _find_trapped_pores(inv_seq, indices, indptr, outlets):
             cluster[pore] = min(nc_uniq)
             # Merge all clusters into a single cluster
             for c in nc:
-                qupc_update(cluster_map, c, min(nc_uniq))
-            cluster_map = qupc_reduce(cluster_map)
+                pnmlib.queries.qupc_update(cluster_map, c, min(nc_uniq))
+            cluster_map = pnmlib.queries.qupc_reduce(cluster_map)
             # If all neighboring clusters are trapped, then set current pore to
             # trapped as well
             if np.all(trapped_clusters[nc]):

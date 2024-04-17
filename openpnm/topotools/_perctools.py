@@ -3,9 +3,8 @@ import numpy as np
 import scipy.sparse as sprs
 from scipy.sparse import csgraph
 from openpnm.utils import PrintableDict, Workspace
-from openpnm._skgraph import simulations
-from openpnm._skgraph import queries
 from collections import namedtuple
+from openpnm import pnmlib
 
 
 logger = logging.getLogger(__name__)
@@ -22,10 +21,10 @@ __all__ = [
 
 
 def find_path(network, pore_pairs, weights=None):
-    return queries.find_path(network=network, pairs=pore_pairs, weights=weights)
+    return pnmlib.queries.find_path(network=network, pairs=pore_pairs, weights=weights)
 
 
-find_path.__doc__ = queries.find_path.__doc__
+find_path.__doc__ = pnmlib.queries.find_path.__doc__
 
 
 def ispercolating(network, inlets, outlets):
@@ -33,7 +32,7 @@ def ispercolating(network, inlets, outlets):
         inlets = np.where(inlets)[0]
     if np.array(outlets).dtype == bool:
         outlets = np.where(outlets)[0]
-    flag = simulations.ispercolating(
+    flag = pnmlib.simulations.ispercolating(
         conns=network.conns,
         occupied=np.ones(network.Nt, dtype=bool),
         inlets=inlets,
@@ -42,29 +41,29 @@ def ispercolating(network, inlets, outlets):
     return flag
 
 
-ispercolating.__doc__ = simulations.ispercolating.__doc__
+ispercolating.__doc__ = pnmlib.simulations.ispercolating.__doc__
 
 
 def site_percolation(network, occupied_sites):
-    return simulations.site_percolation(network.conns, occupied_sites)
+    return pnmlib.simulations.site_percolation(network.conns, occupied_sites)
 
 
-site_percolation.__doc__ = simulations.site_percolation.__doc__
+site_percolation.__doc__ = pnmlib.simulations.site_percolation.__doc__
 
 
 def bond_percolation(network, occupied_bonds):
-    return simulations.bond_percolation(network.conns, occupied_bonds)
+    return pnmlib.simulations.bond_percolation(network.conns, occupied_bonds)
 
 
-bond_percolation.__doc__ = simulations.bond_percolation.__doc__
+bond_percolation.__doc__ = pnmlib.simulations.bond_percolation.__doc__
 
 
 def trim_disconnected_clusters(**kwargs):
-    return simulations.trim_disconnected_clusters(**kwargs)
+    return pnmlib.simulations.trim_disconnected_clusters(**kwargs)
 
 
 trim_disconnected_clusters.__doc__ = \
-    simulations.trim_disconnected_clusters.__doc__
+    pnmlib.simulations.trim_disconnected_clusters.__doc__
 
 
 def find_isolated_clusters(network, mask, inlets):

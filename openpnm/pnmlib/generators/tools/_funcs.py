@@ -4,7 +4,7 @@ Tools
 
 """
 import numpy as np
-from openpnm._skgraph import tools
+from openpnm import pnmlib
 import scipy.spatial as sptl
 
 
@@ -165,23 +165,23 @@ def parse_points(shape, points, reflect=False, f=1):
         if shape[-1] == 0:
             points[:, -1] = 0.0
     if reflect:
-        if np.any(tools.isoutside(points, shape=shape)):
+        if np.any(pnmlib.tools.isoutside(points, shape=shape)):
             raise Exception('Some points lie outside the domain, '
                             + 'cannot safely apply reflection')
         if len(shape) == 3:
             points = reflect_base_points(points=points, domain_size=shape, f=f)
         elif len(shape) == 2:
             # Convert xyz to cylindrical, and back
-            R, Q, Z = tools.cart2cyl(*points.T)
+            R, Q, Z = pnmlib.tools.cart2cyl(*points.T)
             R, Q, Z = reflect_base_points(np.vstack((R, Q, Z)), domain_size=shape, f=f)
             # Convert back to cartesean coordinates
-            points = np.vstack(tools.cyl2cart(R, Q, Z)).T
+            points = np.vstack(pnmlib.tools.cyl2cart(R, Q, Z)).T
         elif len(shape) == 1:
             # Convert to spherical coordinates
-            R, Q, P = tools.cart2sph(*points.T)
+            R, Q, P = pnmlib.tools.cart2sph(*points.T)
             R, Q, P = reflect_base_points(np.vstack((R, Q, P)), domain_size=shape, f=f)
             # Convert to back to cartesean coordinates
-            points = np.vstack(tools.sph2cart(R, Q, P)).T
+            points = np.vstack(pnmlib.tools.sph2cart(R, Q, P)).T
     return points
 
 
@@ -204,8 +204,8 @@ def add_all_label(network):
     This function is helpful for working with OpenPNM
 
     """
-    node_prefix = tools.get_node_prefix(network)
-    edge_prefix = tools.get_edge_prefix(network)
+    node_prefix = pnmlib.tools.get_node_prefix(network)
+    edge_prefix = pnmlib.tools.get_edge_prefix(network)
     coords = network[node_prefix+'.coords']
     conns = network[edge_prefix+'.conns']
     network['pore.all'] = np.ones(coords.shape[0], dtype=bool)
@@ -234,9 +234,9 @@ def label_faces_cubic(network, rtol=0.0):
         The network dictionary with the face labels added
 
     """
-    node_prefix = tools.get_node_prefix(network)
+    node_prefix = pnmlib.tools.get_node_prefix(network)
     coords = network[node_prefix+'.coords']
-    dims = tools.dimensionality(network)
+    dims = pnmlib.tools.dimensionality(network)
     coords = np.around(coords, decimals=10)
     min_labels = ['left', 'front', 'bottom']
     max_labels = ['right', 'back', 'top']
@@ -496,7 +496,7 @@ def generate_base_points(num_points, domain_size, reflect=True, f=1):
         base_pts = np.random.rand(num_points*9, 3)  # Generate more than needed
         # Convert to spherical coordinates
         X, Y, Z = ((np.array(base_pts - [0.5, 0.5, 0.5]))*shape).T
-        R, Q, P = tools.cart2sph(X, Y, Z)
+        R, Q, P = pnmlib.tools.cart2sph(X, Y, Z)
         # Keep points outside the domain
         inds = R <= domain_size[0]
         R, Q, P = R[inds], Q[inds], P[inds]
@@ -506,14 +506,14 @@ def generate_base_points(num_points, domain_size, reflect=True, f=1):
         if reflect:
             R, Q, P = reflect_base_points(np.vstack((R, Q, P)), domain_size, f=f)
         # Convert to Cartesean coordinates
-        base_pts = np.vstack(tools.sph2cart(R, Q, P)).T
+        base_pts = np.vstack(pnmlib.tools.sph2cart(R, Q, P)).T
 
     elif len(domain_size) == 2:  # Cylindrical or Disk
         shape = np.array([2*domain_size[0], 2*domain_size[0], domain_size[1]])
         base_pts = np.random.rand(num_points*9, 3)  # Generate more than needed
         # Convert to cylindrical coordinates
         X, Y, Z = ((np.array(base_pts - [0.5, 0.5, 0]))*shape).T
-        R, Q, Z = tools.cart2cyl(X, Y, Z)
+        R, Q, Z = pnmlib.tools.cart2cyl(X, Y, Z)
         # Trim points outside the domain
         inds = R <= domain_size[0]
         R, Q, Z = R[inds], Q[inds], Z[inds]
@@ -522,7 +522,7 @@ def generate_base_points(num_points, domain_size, reflect=True, f=1):
         if reflect:
             R, Q, Z = reflect_base_points(np.vstack((R, Q, Z)), domain_size, f=f)
         # Convert to Cartesean coordinates
-        base_pts = np.vstack(tools.cyl2cart(R, Q, Z)).T
+        base_pts = np.vstack(pnmlib.tools.cyl2cart(R, Q, Z)).T
 
     elif len(domain_size) == 3:  # Cube or square
         base_pts = np.random.rand(num_points, 3)*domain_size

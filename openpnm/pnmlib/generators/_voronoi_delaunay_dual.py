@@ -1,10 +1,7 @@
 import scipy.spatial as sptl
 import scipy.sparse as sprs
 import numpy as np
-from openpnm._skgraph.generators import tools
-from openpnm._skgraph.operations import trim_nodes
-from openpnm._skgraph.tools import isoutside, conns_to_am
-from openpnm._skgraph.queries import find_neighbor_nodes
+from openpnm import pnmlib
 
 
 def voronoi_delaunay_dual(
@@ -61,7 +58,7 @@ def voronoi_delaunay_dual(
 
     """
     # Generate a set of base points if scalar was given
-    points = tools.parse_points(
+    points = pnmlib.generators.tools.parse_points(
         points=points,
         shape=shape,
         reflect=reflect,
@@ -74,7 +71,7 @@ def voronoi_delaunay_dual(
     # Perform tessellations
     vor = sptl.Voronoi(points=points[:, mask])
     for _ in range(relaxation):
-        points = tools.lloyd_relaxation(vor, mode='fast')
+        points = pnmlib.generators.tools.lloyd_relaxation(vor, mode='fast')
         vor = sptl.Voronoi(points=points[:, mask])
 
     # Collect delaunay edges
@@ -97,7 +94,7 @@ def voronoi_delaunay_dual(
     conns = np.vstack((conns_del, conns_vor, conns_inter))
 
     # Tidy up
-    am = conns_to_am(conns)
+    am = pnmlib.tools.conns_to_am(conns)
     conns = np.vstack((am.row, am.col)).T
 
     # Combine delaunay and voronoi points
@@ -139,20 +136,20 @@ def voronoi_delaunay_dual(
 
     if trim:
         # Find all delaunay nodes outside the domain
-        Ps = isoutside(network=network, shape=shape)*network[node_prefix+'.delaunay']
+        Ps = pnmlib.tools.isoutside(network=network, shape=shape)*network[node_prefix+'.delaunay']
         if np.any(Ps):  # only occurs if points were reflected
             # Find voronoi nodes connected to these and mark them as surface nodes
             inds = np.where(Ps)[0]
-            Ns = find_neighbor_nodes(network=network, inds=inds)
+            Ns = pnmlib.queries.find_neighbor_nodes(network=network, inds=inds)
             network[node_prefix+'.surface'] = np.zeros(n_nodes, dtype=bool)
             network[node_prefix+'.surface'][Ns] = True
-            Ps = isoutside(network=network, shape=shape)
+            Ps = pnmlib.tools.isoutside(network=network, shape=shape)
             inds = np.where(Ps)[0]
-            network = trim_nodes(network=network, inds=inds)
+            network = pnmlib.operations.trim_nodes(network=network, inds=inds)
         else:
-            trim = isoutside(network=network, shape=shape)
+            trim = pnmlib.tools.isoutside(network=network, shape=shape)
             inds = np.where(trim)[0]
-            network = trim_nodes(network=network, inds=inds)
+            network = pnmlib.operations.trim_nodes(network=network, inds=inds)
 
     if return_tri:
         tri = sptl.Delaunay(points=points[:, mask])

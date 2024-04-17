@@ -1,5 +1,5 @@
 import numpy as np
-from openpnm._skgraph import tools
+from openpnm import pnmlib
 
 
 __all__ = [
@@ -31,15 +31,15 @@ def join(g1, g2, L_max=0.99):
     The returned network will use the same node and edge prefixes as ``g1``
 
     """
-    node_prefix_1 = tools.get_node_prefix(g1)
-    node_prefix_2 = tools.get_node_prefix(g2)
+    node_prefix_1 = pnmlib.tools.get_node_prefix(g1)
+    node_prefix_2 = pnmlib.tools.get_node_prefix(g2)
     if node_prefix_1 != node_prefix_2:
         for item in g2.keys():
             _, prop = item.split('.', 1)
             g2[node_prefix_1 + '.' + item] = g2.pop(item)
     node_prefix = node_prefix_1
-    edge_prefix_1 = tools.get_edge_prefix(g1)
-    edge_prefix_2 = tools.get_edge_prefix(g2)
+    edge_prefix_1 = pnmlib.tools.get_edge_prefix(g1)
+    edge_prefix_2 = pnmlib.tools.get_edge_prefix(g2)
     if edge_prefix_1 != edge_prefix_2:
         for item in g2.keys():
             _, prop = item.split('.', 1)

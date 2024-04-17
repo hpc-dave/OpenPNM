@@ -1,9 +1,7 @@
 import numpy as np
 import scipy.sparse as sprs
 from scipy.sparse import csgraph
-from openpnm._skgraph.tools import conns_to_am, dict_to_am, dict_to_im
-from openpnm._skgraph.tools import istriu, isgtriu
-from openpnm._skgraph.tools import get_node_prefix, get_edge_prefix
+from openpnm import pnmlib
 
 
 __all__ = [
@@ -41,7 +39,7 @@ def find_complementary_edges(network, inds, asmask=False):
     list
 
     """
-    edge_prefix = get_edge_prefix(network)
+    edge_prefix = pnmlib.tools.get_edge_prefix(network)
     inds = np.unique(inds)
     N = network[edge_prefix+'.conns'].shape[0]
     mask = np.ones(shape=N, dtype=bool)
@@ -73,7 +71,7 @@ def find_complementary_nodes(network, inds, asmask=False):
     list
 
     """
-    node_prefix = get_node_prefix(network)
+    node_prefix = pnmlib.tools.get_node_prefix(network)
     inds = np.unique(inds)
     N = network[node_prefix+'.coords'].shape[0]
     mask = np.ones(shape=N, dtype=bool)
@@ -131,12 +129,12 @@ def find_connected_nodes(network, inds, flatten=True, logic='or'):
     array is of type ``float`` and is not suitable for indexing.
 
     """
-    if not isgtriu(network):
+    if not pnmlib.tools.isgtriu(network):
         raise Exception("This function is not implemented for directed networks")
     edges = np.array(inds, ndmin=1)
     if len(edges) == 0:  # Short-circuit this function if edges is empty
         return []
-    am = dict_to_am(network)
+    am = pnmlib.tools.dict_to_am(network)
     neighbors = np.hstack((am.row[edges], am.col[edges]))
     if neighbors.size > 0:
         n_sites = np.amax(neighbors)
@@ -225,10 +223,10 @@ def find_neighbor_edges(network, inds, flatten=True, logic='or'):
 
     """
     if flatten == False:
-        im = dict_to_im(network)
+        im = pnmlib.tools.dict_to_im(network)
         am = None
     else:
-        am = dict_to_am(network)
+        am = pnmlib.tools.dict_to_am(network)
         im = None
     if im is not None:
         if im.format != 'lil':
@@ -266,7 +264,7 @@ def find_neighbor_edges(network, inds, flatten=True, logic='or'):
             am = am.tocoo(copy=False)
         if flatten is False:
             raise Exception('flatten cannot be used with an adjacency matrix')
-        if isgtriu(network):
+        if pnmlib.tools.isgtriu(network):
             am = sprs.triu(am, k=1)
         Ps = np.zeros(am.shape[0], dtype=bool)
         Ps[inds] = True
@@ -348,7 +346,7 @@ def find_neighbor_nodes(network, inds, flatten=True, include_input=False,
     # Short-circuit the function if the input list is already empty
     if len(nodes) == 0:
         return []
-    am_coo = dict_to_am(g)
+    am_coo = pnmlib.tools.dict_to_am(g)
     am = am_coo.tolil(copy=False)
     rows = am.rows[nodes].tolist()
     if len(rows) == 0:
@@ -420,8 +418,8 @@ def find_connecting_edges(inds, network=None, am=None):
     if nodes.size == 0:
         return []
     if network is not None:
-        edge_prefix = get_edge_prefix(network)
-        am = dict_to_am(
+        edge_prefix = pnmlib.tools.get_edge_prefix(network)
+        am = pnmlib.tools.dict_to_am(
             network,
             weights=np.arange(network[edge_prefix+'.conns'].shape[0])
         )
@@ -457,7 +455,7 @@ def find_common_edges(network, inds_1, inds_2):
     """
     if np.intersect1d(inds_1, inds_2).size != 0:
         raise Exception("inds_1 and inds_2 must not share any nodes")
-    if not isgtriu(network):
+    if not pnmlib.tools.isgtriu(network):
         raise Exception("This function is not implemented for directed graphs")
     edges_1 = find_neighbor_edges(inds=inds_1, network=network, logic="xor")
     edges_2 = find_neighbor_edges(inds=inds_2, network=network, logic="xor")
@@ -512,7 +510,7 @@ def find_coordination(network, nodes=None):
     Supports directed and undirected graphs
 
     """
-    am = dict_to_am(network)
+    am = pnmlib.tools.dict_to_am(network)
     z = am.getnnz(axis=1)
     if nodes is None:
         return z
@@ -549,13 +547,13 @@ def find_path(network, pairs, weights=None):
     ``scipy.sparse.csgraph`` module
 
     """
-    am = dict_to_am(network)
+    am = pnmlib.tools.dict_to_am(network)
     if weights is not None:
         am.data = np.ones_like(am.row, dtype=int)
     pairs = np.array(pairs, ndmin=2)
     paths = csgraph.dijkstra(csgraph=am, indices=pairs[:, 0],
                              return_predecessors=True, min_only=False)[1]
-    if isgtriu(network):
+    if pnmlib.tools.isgtriu(network):
         am.data = np.hstack(2*[np.arange(am.data.size/2)]).astype(int)
     else:
         am.data = np.arange(am.data.size).astype(int)

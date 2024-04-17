@@ -1,8 +1,6 @@
 import numpy as np
 import scipy.spatial as sptl
-from openpnm._skgraph.generators import tools
-from openpnm._skgraph.tools import tri_to_am, isoutside
-from openpnm._skgraph.operations import trim_nodes
+from openpnm import pnmlib
 
 
 def delaunay(
@@ -46,14 +44,15 @@ def delaunay(
     tri : Delaunay tessellation object
         The Delaunay tessellation object produced by ``scipy.spatial.Delaunay``
     """
-    points = tools.parse_points(points=points, shape=shape, reflect=reflect, f=f)
+    points = pnmlib.tools.parse_points(
+        points=points, shape=shape, reflect=reflect, f=f)
     mask = ~np.all(points == 0, axis=0)
     tri = sptl.Delaunay(points=points[:, mask])
-    coo = tri_to_am(tri)
+    coo = pnmlib.tools.tri_to_am(tri)
     d = {}
     d[node_prefix+'.coords'] = points
     d[edge_prefix+'.conns'] = np.vstack((coo.row, coo.col)).T
     if trim:
-        trim = isoutside(d, shape=shape)
-        d = trim_nodes(network=d, inds=np.where(trim)[0])
+        trim = pnmlib.tools.isoutside(d, shape=shape)
+        d = pnmlib.operations.trim_nodes(network=d, inds=np.where(trim)[0])
     return d, tri

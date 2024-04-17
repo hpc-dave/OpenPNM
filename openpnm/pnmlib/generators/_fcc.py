@@ -2,8 +2,7 @@ import numpy as np
 import scipy.spatial as sptl
 import scipy.sparse as sprs
 from numba import njit
-from openpnm._skgraph.generators import cubic
-from openpnm._skgraph.tools import tri_to_am
+from openpnm import pnmlib
 
 
 @njit
@@ -50,15 +49,15 @@ def fcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge')
     """
     shape = np.array(shape)
     # Create base cubic network of corner sites
-    net1 = cubic(shape=shape,
-                 node_prefix=node_prefix, edge_prefix=edge_prefix)
+    net1 = pnmlib.generators.cubic(shape=shape,
+                                   node_prefix=node_prefix, edge_prefix=edge_prefix)
     # Create 3 networks to become face sites
-    net2 = cubic(shape=shape - [1, 1, 0],
-                 node_prefix=node_prefix, edge_prefix=edge_prefix)
-    net3 = cubic(shape=shape - [1, 0, 1],
-                 node_prefix=node_prefix, edge_prefix=edge_prefix)
-    net4 = cubic(shape=shape - [0, 1, 1],
-                 node_prefix=node_prefix, edge_prefix=edge_prefix)
+    net2 = pnmlib.generators.cubic(shape=shape - [1, 1, 0],
+                                   node_prefix=node_prefix, edge_prefix=edge_prefix)
+    net3 = pnmlib.generators.cubic(shape=shape - [1, 0, 1],
+                                   node_prefix=node_prefix, edge_prefix=edge_prefix)
+    net4 = pnmlib.generators.cubic(shape=shape - [0, 1, 1],
+                                   node_prefix=node_prefix, edge_prefix=edge_prefix)
     # Offset pore coords by 1/2 a unit cell
     net2[node_prefix+'.coords'] += np.array([0.5, 0.5, 0])
     net3[node_prefix+'.coords'] += np.array([0.5, 0, 0.5])
@@ -74,7 +73,7 @@ def fcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge')
          np.zeros(net4[node_prefix+'.coords'].shape[0], dtype=bool)))
     if mode.startswith('tri'):
         tri = sptl.Delaunay(points=crds)
-        am = tri_to_am(tri)
+        am = pnmlib.tools.tri_to_am(tri)
         conns = np.vstack((am.row, am.col)).T
         # Trim diagonal connections between cubic pores
         L = np.sqrt(np.sum(np.diff(crds[conns], axis=1)**2, axis=2)).flatten()

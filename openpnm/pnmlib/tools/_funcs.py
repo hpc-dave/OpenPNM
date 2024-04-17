@@ -4,9 +4,7 @@ from scipy.spatial import KDTree, distance_matrix
 from scipy.spatial import ConvexHull
 from scipy.spatial import Delaunay
 from scipy.sparse import csgraph
-from openpnm._skgraph.tools import generate_points_on_sphere
-from openpnm._skgraph.tools import generate_points_on_circle
-from openpnm._skgraph.tools import cart2sph, sph2cart, cart2cyl, cyl2cart
+from openpnm import pnmlib
 
 
 # Once a function has been stripped of all its OpenPNM dependent code it
@@ -180,12 +178,12 @@ def isoutside(network, shape, rtol=0.0):
     # Label external pores for trimming below
     if len(shape) == 1:  # Spherical
         # Find external points
-        R, Q, P = cart2sph(*coords.T)
+        R, Q, P = pnmlib.tools.cart2sph(*coords.T)
         thresh = tolerance[0]*shape[0]
         Ps = R > (shape[0] + thresh)
     elif len(shape) == 2:  # Cylindrical
         # Find external pores outside radius
-        R, Q, Z = cart2cyl(*coords.T)
+        R, Q, Z = pnmlib.tools.cart2cyl(*coords.T)
         thresh = tolerance[0]*shape[0]
         Ps = R > shape[0]*(1 + thresh)
         # Find external pores above and below cylinder
@@ -329,7 +327,7 @@ def find_surface_nodes(network):
     coords = np.copy(network[node_prefix+'.coords'])
     shift = np.mean(coords, axis=0)
     coords = coords - shift
-    tmp = cart2sph(*coords.T)
+    tmp = pnmlib.tools.cart2sph(*coords.T)
     hits = np.zeros(coords.shape[0], dtype=bool)
     r = 2*tmp[0].max()
     dims = dimensionality(network)
@@ -340,10 +338,12 @@ def find_surface_nodes(network):
         hits[lo] = True
         return hits
     if sum(dims) == 2:
-        markers = generate_points_on_circle(n=max(10, int(coords.shape[0]/10)), r=r)
+        markers = pnmlib.tools.generate_points_on_circle(
+            n=max(10, int(coords.shape[0]/10)), r=r)
         pts = np.vstack((coords[:, dims], markers))
     else:
-        markers = generate_points_on_sphere(n=max(10, int(coords.shape[0]/10)), r=r)
+        markers = pnmlib.tools.generate_points_on_sphere(
+            n=max(10, int(coords.shape[0]/10)), r=r)
         pts = np.vstack((coords, markers))
     tri = Delaunay(pts, incremental=False)
     (indices, indptr) = tri.vertex_neighbor_vertices

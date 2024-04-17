@@ -1,6 +1,6 @@
 from openpnm.network import Network
 from openpnm.utils import Docorator
-from openpnm._skgraph.generators import delaunay
+from openpnm.pnmlib.generators import delaunay
 
 
 __all__ = ['Delaunay']

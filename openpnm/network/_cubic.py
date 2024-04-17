@@ -3,9 +3,9 @@ import numpy as np
 from openpnm.network import Network
 from openpnm.utils import Docorator
 from openpnm import topotools
-from openpnm import _skgraph as skgr
-skgr.settings.node_prefix = 'pore'
-skgr.settings.edge_prefix = 'throat'
+from openpnm import pnmlib
+pnmlib.settings.node_prefix = 'pore'
+pnmlib.settings.edge_prefix = 'throat'
 
 docstr = Docorator()
 logger = logging.getLogger(__name__)
@@ -59,15 +59,15 @@ class Cubic(Network):
 
     def __init__(self, shape, spacing=[1, 1, 1], connectivity=6, **kwargs):
         super().__init__(**kwargs)
-        net = skgr.generators.cubic(shape=shape, spacing=spacing,
-                                    connectivity=connectivity,
-                                    node_prefix='pore', edge_prefix='throat')
+        net = pnmlib.generators.cubic(shape=shape, spacing=spacing,
+                                      connectivity=connectivity,
+                                      node_prefix='pore', edge_prefix='throat')
         self.update(net)
         self._post_init()
-        self["pore.surface"] = skgr.tools.find_surface_nodes_cubic(self)
+        self["pore.surface"] = pnmlib.tools.find_surface_nodes_cubic(self)
         Ps = self["pore.surface"]
         self["throat.surface"] = np.all(Ps[self["throat.conns"]], axis=1)
-        self.update(skgr.generators.tools.label_faces_cubic(self))
+        self.update(pnmlib.generators.tools.label_faces_cubic(self))
 
     def add_boundary_pores(self, labels=["top", "bottom", "front",
                                          "back", "left", "right"],

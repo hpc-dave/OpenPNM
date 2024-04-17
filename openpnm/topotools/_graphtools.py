@@ -1,6 +1,4 @@
-from openpnm._skgraph import tools
-from openpnm._skgraph import queries
-from openpnm._skgraph import operations
+from openpnm import pnmlib
 
 
 __all__ = [
@@ -20,84 +18,84 @@ __all__ = [
 
 
 def find_neighbor_sites(sites, **kwargs):
-    return queries.find_neighbor_nodes(inds=sites, **kwargs)
+    return pnmlib.queries.find_neighbor_nodes(inds=sites, **kwargs)
 
 
-find_neighbor_sites.__doc__ = queries.find_neighbor_nodes.__doc__
+find_neighbor_sites.__doc__ = pnmlib.queries.find_neighbor_nodes.__doc__
 
 
 def find_neighbor_bonds(sites, **kwargs):
-    return queries.find_neighbor_edges(inds=sites, **kwargs)
+    return pnmlib.queries.find_neighbor_edges(inds=sites, **kwargs)
 
 
-find_neighbor_bonds.__doc__ = queries.find_neighbor_edges.__doc__
+find_neighbor_bonds.__doc__ = pnmlib.queries.find_neighbor_edges.__doc__
 
 
 def find_connected_sites(bonds, **kwargs):
-    return queries.find_connected_nodes(inds=bonds, **kwargs)
+    return pnmlib.queries.find_connected_nodes(inds=bonds, **kwargs)
 
 
-find_connected_sites.__doc__ = queries.find_connected_nodes.__doc__
+find_connected_sites.__doc__ = pnmlib.queries.find_connected_nodes.__doc__
 
 
 def find_connecting_bonds(sites, **kwargs):
-    return queries.find_connecting_edges(inds=sites, **kwargs)
+    return pnmlib.queries.find_connecting_edges(inds=sites, **kwargs)
 
 
-find_connecting_bonds.__doc__ = queries.find_connecting_edges.__doc__
+find_connecting_bonds.__doc__ = pnmlib.queries.find_connecting_edges.__doc__
 
 
 def istriu(am):
-    return tools.istriu(am)
+    return pnmlib.tools.istriu(am)
 
 
-istriu.__doc__ = tools.istriu.__doc__
+istriu.__doc__ = pnmlib.tools.istriu.__doc__
 
 
 def istril(am):
-    return tools.istril(am)
+    return pnmlib.tools.istril(am)
 
 
-istril.__doc__ = tools.istril.__doc__
+istril.__doc__ = pnmlib.tools.istril.__doc__
 
 
 def istriangular(am):
-    return tools.istriangular(am)
+    return pnmlib.tools.istriangular(am)
 
 
-istriangular.__doc__ = tools.istriangular.__doc__
+istriangular.__doc__ = pnmlib.tools.istriangular.__doc__
 
 
 def issymmetric(am):
-    return tools.issymmetric(am)
+    return pnmlib.tools.issymmetric(am)
 
 
-issymmetric.__doc__ = tools.issymmetric.__doc__
+issymmetric.__doc__ = pnmlib.tools.issymmetric.__doc__
 
 
 def tri_to_am(tri):
-    return tools.tri_to_am(tri=tri)
+    return pnmlib.tools.tri_to_am(tri=tri)
 
 
-tri_to_am.__doc__ = tools.tri_to_am.__doc__
+tri_to_am.__doc__ = pnmlib.tools.tri_to_am.__doc__
 
 
 def vor_to_am(vor):
-    return tools.vor_to_am(vor=vor)
+    return pnmlib.tools.vor_to_am(vor=vor)
 
 
-vor_to_am.__doc__ = tools.vor_to_am.__doc__
+vor_to_am.__doc__ = pnmlib.tools.vor_to_am.__doc__
 
 
 def conns_to_am(*args, **kwargs):
-    return tools.conns_to_am(*args, **kwargs)
+    return pnmlib.tools.conns_to_am(*args, **kwargs)
 
 
-conns_to_am.__doc__ = tools.conns_to_am.__doc__
+conns_to_am.__doc__ = pnmlib.tools.conns_to_am.__doc__
 
 
 def drop_sites(am, sites):
-    return operations.drop_nodes_from_am(inds=sites, am=am)
+    return pnmlib.operations.drop_nodes_from_am(inds=sites, am=am)
 
 
-drop_sites.__doc__ = operations.drop_nodes_from_am.__doc__
+drop_sites.__doc__ = pnmlib.operations.drop_nodes_from_am.__doc__

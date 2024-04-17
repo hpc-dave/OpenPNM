@@ -20,7 +20,7 @@ logging.basicConfig(
 import numpy as _np
 
 from . import (
-    _skgraph,
+    pnmlib,
     algorithms,
     contrib,
     core,

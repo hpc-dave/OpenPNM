@@ -1,8 +1,7 @@
 import scipy.spatial as sptl
 import scipy.sparse as sprs
 import numpy as np
-from openpnm._skgraph.generators import cubic
-from openpnm._skgraph.tools import tri_to_am
+from openpnm import pnmlib
 
 
 def bcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge'):
@@ -44,10 +43,10 @@ def bcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge')
     """
     shape = np.array(shape)
     spacing = np.array(spacing)
-    net1 = cubic(shape=shape, spacing=1,
-                 node_prefix=node_prefix, edge_prefix=edge_prefix)
-    net2 = cubic(shape=shape-1, spacing=1,
-                 node_prefix=node_prefix, edge_prefix=edge_prefix)
+    net1 = pnmlib.generators.cubic(shape=shape, spacing=1,
+                                   node_prefix=node_prefix, edge_prefix=edge_prefix)
+    net2 = pnmlib.generators.cubic(shape=shape-1, spacing=1,
+                                   node_prefix=node_prefix, edge_prefix=edge_prefix)
     net2[node_prefix + '.coords'] += 0.5
     crds = np.concatenate(
         (net1[node_prefix + '.coords'],
@@ -60,7 +59,7 @@ def bcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge')
          np.ones(net2[node_prefix + '.coords'].shape[0], dtype=bool)))
     if mode.startswith('tri'):
         tri = sptl.Delaunay(points=crds)
-        am = tri_to_am(tri)
+        am = pnmlib.tools.tri_to_am(tri)
         conns = np.vstack((am.row, am.col)).T
         # Trim diagonal connections between cubic pores
         L = np.sqrt(np.sum(np.diff(crds[conns], axis=1)**2, axis=2)).flatten()
@@ -93,7 +92,7 @@ def bcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge')
 if __name__ == '__main__':
     import openpnm as op
     import matplotlib.pyplot as plt
-    from openpnm._skgraph import get_node_prefix, get_edge_prefix
+    from openpnm.pnmlib import get_node_prefix, get_edge_prefix
     pn = op.network.Network()
     net = bcc([3, 3, 3], 1, mode='tri')
     net['pore.coords'] = net.pop(get_node_prefix(net) + '.coords')

@@ -3,7 +3,7 @@ import numpy as np
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Circle, Polygon, Rectangle
 
-from openpnm._skgraph.tools import rotate_coords
+from openpnm import pnmlib
 from openpnm.models.geometry import throat_endpoints, throat_length
 from openpnm.network import Network
 from openpnm.topotools import find_connected_sites
@@ -33,7 +33,7 @@ def draw_conduit(network, throat):
         circle = Circle((x, y), r)
         patches.append(circle)
     Tcrds = np.vstack(list(new_net['throat.endpoints'].values()))
-    Tcrds = rotate_coords(Tcrds, b=270)
+    Tcrds = pnmlib.tools.rotate_coords(Tcrds, b=270)
     H = new_net['throat.diameter'][0]
     W = new_net['throat.length'][0]
     R1 = new_net['pore.diameter'][0]/2

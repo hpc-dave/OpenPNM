@@ -3,11 +3,7 @@ from collections import namedtuple
 import numpy as np
 from tqdm.auto import tqdm
 
-from openpnm._skgraph.simulations import (
-    bond_percolation,
-    find_connected_clusters,
-    site_percolation,
-)
+from openpnm import pnmlib
 from openpnm.algorithms import Algorithm
 from openpnm.utils import Docorator, TypedSet
 
@@ -179,9 +175,10 @@ class Drainage(Algorithm):
         # Remove trapped throats from this list, if any
         # Tinv[self['throat.trapped']] = False
         # Perform bond_percolation to label invaded clusters
-        s_labels, b_labels = bond_percolation(self.network.conns, Tinv)
+        s_labels, b_labels = pnmlib.simulations.bond_percolation(
+            self.network.conns, Tinv)
         # Remove label from any clusters not connected to the inlets
-        s_labels, b_labels = find_connected_clusters(
+        s_labels, b_labels = pnmlib.simulations.find_connected_clusters(
             b_labels, s_labels, self['pore.bc.inlet'], asmask=False)
         # Add result to existing invaded locations
         self['pore.invaded'][s_labels >= 0] = True
@@ -226,8 +223,8 @@ class Drainage(Algorithm):
         # Now scan through and use site percolation to find other trapped
         # clusters of pores
         for p in np.unique(pseq):
-            s, b = site_percolation(conns=self.network.conns,
-                                    occupied_sites=pseq > p)
+            s, b = pnmlib.simulations.site_percolation(
+                conns=self.network.conns, occupied_sites=pseq > p)
             # Identify cluster numbers connected to the outlets
             clusters = np.unique(s[self['pore.bc.outlet']])
             # Find ALL throats connected to any trapped site, since these
