@@ -11,7 +11,13 @@ def len_lil(lil):
     return indptr
 
 
-def fcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge'):
+def fcc(
+    shape, 
+    spacing=1,
+    method='kdtree', 
+    node_prefix='node', 
+    edge_prefix='edge'.
+):
     r"""
     Generate a face-centered cubic lattice
 
@@ -23,7 +29,7 @@ def fcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge')
     spacing : array_like or float
         The size of a unit cell in each direction. If an scalar is given it is
         applied in all 3 directions.
-    mode : str
+    method : str
         Dictate how neighbors are found.  Options are:
 
         ===============  =====================================================
@@ -71,14 +77,14 @@ def fcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge')
          np.zeros(net2[node_prefix+'.coords'].shape[0], dtype=bool),
          np.zeros(net3[node_prefix+'.coords'].shape[0], dtype=bool),
          np.zeros(net4[node_prefix+'.coords'].shape[0], dtype=bool)))
-    if mode.startswith('tri'):
+    if method.startswith('tri'):
         tri = sptl.Delaunay(points=crds)
         am = pnmlib.tools.tri_to_am(tri)
         conns = np.vstack((am.row, am.col)).T
         # Trim diagonal connections between cubic pores
         L = np.sqrt(np.sum(np.diff(crds[conns], axis=1)**2, axis=2)).flatten()
         conns = conns[L <= 0.75]
-    elif mode.startswith('kd'):
+    elif method.startswith('kd'):
         tree1 = sptl.KDTree(crds)
         # Method 1
         hits = tree1.query_ball_point(crds, r=.75)

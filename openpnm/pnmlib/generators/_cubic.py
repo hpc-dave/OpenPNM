@@ -1,7 +1,13 @@
 import numpy as np
 
 
-def cubic(shape, spacing=1, connectivity=6, node_prefix='node', edge_prefix='edge'):
+def cubic(
+    shape,
+    spacing=1, 
+    connectivity=6, 
+    node_prefix='node', 
+    edge_prefix='edge',
+):
     r"""
     Generate a simple cubic lattice
 

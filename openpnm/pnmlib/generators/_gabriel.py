@@ -8,8 +8,14 @@ __all__ = [
 ]
 
 
-def gabriel(points=None, delaunay=None, shape=None, reflect=False,
-            node_prefix='node', edge_prefix='edge'):
+def gabriel(
+    points=None, 
+    delaunay=None, 
+    shape=None, 
+    reflect=False,
+    node_prefix='node', 
+    edge_prefix='edge',
+):
     r"""
     Generate a network based on a Gabriel tessellation, which is a subset of
     the Delaunay triangulation

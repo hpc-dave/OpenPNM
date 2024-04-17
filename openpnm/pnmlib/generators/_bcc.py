@@ -4,7 +4,13 @@ import numpy as np
 from openpnm import pnmlib
 
 
-def bcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge'):
+def bcc(
+    shape, 
+    spacing=1, 
+    method='kdtree', 
+    node_prefix='node', 
+    edge_prefix='edge',
+):
     r"""
     Generate a body-centered cubic lattice
 
@@ -17,7 +23,7 @@ def bcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge')
     spacing : array_like or float
         The size of a unit cell in each direction. If an scalar is given it is
         applied in all 3 directions.
-    mode : str
+    method : str
         Dictate how neighbors are found.  Options are:
 
         ===============  ======================================================
@@ -57,14 +63,14 @@ def bcc(shape, spacing=1, mode='kdtree', node_prefix='node', edge_prefix='edge')
     body_label = np.concatenate(
         (np.zeros(net1[node_prefix + '.coords'].shape[0], dtype=bool),
          np.ones(net2[node_prefix + '.coords'].shape[0], dtype=bool)))
-    if mode.startswith('tri'):
+    if method.startswith('tri'):
         tri = sptl.Delaunay(points=crds)
         am = pnmlib.tools.tri_to_am(tri)
         conns = np.vstack((am.row, am.col)).T
         # Trim diagonal connections between cubic pores
         L = np.sqrt(np.sum(np.diff(crds[conns], axis=1)**2, axis=2)).flatten()
         conns = conns[L <= 1]
-    elif mode.startswith('kd'):
+    elif method.startswith('kd'):
         tree1 = sptl.KDTree(crds)
         # Method 1
         hits = tree1.query_ball_point(crds, r=1)
