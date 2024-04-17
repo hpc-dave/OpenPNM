@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from openpnm._skgraph.generators import cubic
-from openpnm._skgraph import queries
-from openpnm._skgraph import tools
+from openpnm.pnmlib.generators import cubic
+from openpnm.pnmlib import queries
+from openpnm.pnmlib import tools
 
 
 class SKGRQueriesTest:

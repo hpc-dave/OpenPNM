@@ -1,7 +1,7 @@
 import numpy as np
-from openpnm._skgraph import generators as gen
-from openpnm._skgraph.visualization import plot_edges, plot_nodes
-import openpnm._skgraph.operations as ops
+from openpnm.pnmlib import generators as gen
+from openpnm.pnmlib.visualization import plot_edges, plot_nodes
+import openpnm.pnmlib.operations as ops
 
 
 class SKGROperationsTest:

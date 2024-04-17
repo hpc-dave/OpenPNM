@@ -1,8 +1,8 @@
 import numpy as np
-from openpnm._skgraph import generators as gen
-from openpnm._skgraph import operations as ops
-from openpnm._skgraph.operations import trim_nodes
-from openpnm._skgraph.tools import isoutside
+from openpnm.pnmlib import generators as gen
+from openpnm.pnmlib import operations as ops
+from openpnm.pnmlib.operations import trim_nodes
+from openpnm.pnmlib.tools import isoutside
 
 
 class SKGRGeneratorsTest:

@@ -1,8 +1,8 @@
 import pytest
 import numpy as np
 from numpy.testing import assert_allclose
-from openpnm._skgraph import tools
-from openpnm._skgraph.generators import cubic
+from openpnm.pnmlib import tools
+from openpnm.pnmlib.generators import cubic
 
 
 class SKGRToolsTest:

@@ -64,7 +64,7 @@ class DelaunayGabrielTest:
     def test_delaunay_disk_with_2D_points(self):
         np.random.seed(0)
         rqz = np.random.rand(50, 3)*np.array([1, 2*np.pi, 1])
-        pts = np.vstack(op._skgraph.tools.cyl2cart(*rqz.T)).T
+        pts = np.vstack(op.pnmlib.tools.cyl2cart(*rqz.T)).T
         tri = op.network.Delaunay(points=pts[:, :2], shape=[1, 0])
         assert tri.coords.shape == (50, 3)
         assert_array_almost_equal(tri.coords[:, :2], pts[:, :2], decimal=15)
@@ -74,9 +74,9 @@ class DelaunayGabrielTest:
     def test_delaunay_disk_with_prereflected_points(self):
         np.random.seed(0)
         rqz = np.random.rand(50, 3)*np.array([1, 2*np.pi, 1])
-        rqz = op._skgraph.generators.tools.reflect_base_points(rqz.T,
+        rqz = op.pnmlib.generators.tools.reflect_base_points(rqz.T,
                                                                domain_size=[1, 1])
-        pts = np.vstack(op._skgraph.tools.cyl2cart(*rqz)).T
+        pts = np.vstack(op.pnmlib.tools.cyl2cart(*rqz)).T
         tri = op.network.Delaunay(points=pts, shape=[1, 1], reflect=False, trim=True)
         assert tri.coords.shape == (50, 3)
         assert_array_almost_equal(tri.coords, pts[:50, :], decimal=15)
@@ -84,7 +84,7 @@ class DelaunayGabrielTest:
     def test_delaunay_disk_with_3D_points(self):
         np.random.seed(0)
         rqz = np.random.rand(50, 3)*np.array([1, 2*np.pi, 1])
-        pts = np.vstack(op._skgraph.tools.cyl2cart(*rqz.T)).T
+        pts = np.vstack(op.pnmlib.tools.cyl2cart(*rqz.T)).T
         tri = op.network.Delaunay(points=pts, shape=[1, 1])
         assert tri.coords.shape == (50, 3)
         assert_array_almost_equal(tri.coords, pts, decimal=15)
@@ -97,7 +97,7 @@ class DelaunayGabrielTest:
     def test_delaunay_cylinder_with_points(self):
         np.random.seed(0)
         rqz = np.random.rand(50, 3)*np.array([1, 2*np.pi, 1])
-        pts = np.vstack(op._skgraph.tools.cyl2cart(*rqz.T)).T
+        pts = np.vstack(op.pnmlib.tools.cyl2cart(*rqz.T)).T
         tri = op.network.Delaunay(points=pts, shape=[1, 1])
         assert tri.coords.shape == (50, 3)
         assert_array_almost_equal(tri.coords, pts, decimal=15)

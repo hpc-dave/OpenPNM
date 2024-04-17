@@ -1,5 +1,5 @@
 import numpy as np
-from openpnm._skgraph.queries import (
+from openpnm.pnmlib.queries import (
     qupc_initialize,
     qupc_reduce,
     qupc_update,

@@ -1,6 +1,6 @@
 import numpy as np
 import openpnm as op
-from openpnm._skgraph.tools import cyl2cart, sph2cart
+from openpnm.pnmlib.tools import cyl2cart, sph2cart
 
 
 class VoronoiTest:
