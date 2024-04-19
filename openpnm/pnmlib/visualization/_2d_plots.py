@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
 from openpnm.visualization import plot_coordinates, plot_connections
+from openpnm import pnmlib
 
 
 __all__ = [
@@ -67,7 +68,7 @@ def plot_patches(
     from openpnm.models.geometry.throat_vector import pore_to_pore
 
     # Ensure network is 2D
-    assert np.all(network.coords[0, :] == network.coords, axis=0)[2] == True, \
+    assert np.all(network['pore.coords'][0, :] == network['pore.coords'], axis=0)[2] == True, \
         "Network must be 2D for this function to work"
 
     if cmap is not None:
@@ -85,7 +86,7 @@ def plot_patches(
     for p in network.Ps:
         pores.append(
             Circle(
-                xy=network.coords[p, :2],
+                xy=network['pore.coords'][p, :2],
                 radius=network['pore.diameter'][p]/2,
                 alpha=0.8,
                 facecolor=pore_color[p],
@@ -420,7 +421,7 @@ def draw_pores(
     }
     patchkws = patch_defaults | patch_kwargs
     # Ensure network is 2D
-    assert np.all(network.coords[0, :] == network.coords, axis=0)[2] == True, \
+    assert np.all(network['pore.coords'][0, :] == network['pore.coords'], axis=0)[2] == True, \
         "Network must be 2D for this function to work"
 
     if pores is None:
@@ -443,7 +444,7 @@ def draw_pores(
         for i, p in enumerate(pores):
             patches.append(
                 Circle(
-                    xy=network.coords[p, :2]*scale,
+                    xy=network['pore.coords'][p, :2]*scale,
                     radius=network['pore.diameter'][p]/2*scale,
                     facecolor=facecolor[i],
                     **patchkws
@@ -452,8 +453,8 @@ def draw_pores(
     elif style.startswith('square') or style.startswith('rect'):
         for i, p in enumerate(pores):
             patches.append(Rectangle(
-                xy=(network.coords[p, 0]*scale - network['pore.diameter'][p]/2*scale,
-                    network.coords[p, 1]*scale - network['pore.diameter'][p]/2)*scale,
+                xy=(network['pore.coords'][p, 0]*scale - network['pore.diameter'][p]/2*scale,
+                    network['pore.coords'][p, 1]*scale - network['pore.diameter'][p]/2)*scale,
                 width=network['pore.diameter'][p]*scale,
                 height=network['pore.diameter'][p]*scale,
                 facecolor=facecolor[i],
@@ -464,8 +465,8 @@ def draw_pores(
         fig, ax = plt.subplots()
     if show_centers:
         ax.plot(
-            network.coords[:, 0]*scale,
-            network.coords[:, 1]*scale,
+            network['pore.coords'][:, 0]*scale,
+            network['pore.coords'][:, 1]*scale,
             'w.',
             markersize=show_centers*scale,
             zorder=3,
@@ -558,7 +559,7 @@ def draw_throats(
     patchkws = patch_defaults | patch_kwargs
 
     # Ensure network is 2D
-    assert np.all(network.coords[0, :] == network.coords, axis=0)[2] == True, \
+    assert np.all(network['pore.coords'][0, :] == network['pore.coords'], axis=0)[2] == True, \
         "Network must be 2D for this function to work"
 
     if throats is None:
