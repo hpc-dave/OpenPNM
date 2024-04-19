@@ -44,7 +44,7 @@ def delaunay(
     tri : Delaunay tessellation object
         The Delaunay tessellation object produced by ``scipy.spatial.Delaunay``
     """
-    points = pnmlib.tools.parse_points(
+    points = pnmlib.generators.tools.parse_points(
         points=points, shape=shape, reflect=reflect, f=f)
     mask = ~np.all(points == 0, axis=0)
     tri = sptl.Delaunay(points=points[:, mask])

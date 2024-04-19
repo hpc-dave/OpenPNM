@@ -479,7 +479,7 @@ def count(target, element):
 
 def get_indices(target, element, labels='all', mode='or'):
     r"""
-    
+
     """
     # Parse and validate all input values.
     element = _parse_element(target=target, element=element, single=True)
@@ -582,7 +582,7 @@ def get_pores(target, labels='all', mode='or', asmask=False):
     arrays manually.
 
     """
-    ind = _get_indices(target=target, element='pore', labels=labels, mode=mode)
+    ind = get_indices(target=target, element='pore', labels=labels, mode=mode)
     if asmask:
         ind = to_mask(target=target, pores=ind)
     return ind

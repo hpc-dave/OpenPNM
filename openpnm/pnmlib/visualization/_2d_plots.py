@@ -6,7 +6,7 @@ from openpnm import pnmlib
 
 
 __all__ = [
-    'plot_patches',
+    'draw_network',
     'draw_pores',
     'draw_throats',
     'annotate_pores',
@@ -20,14 +20,14 @@ __all__ = [
 def get_end_points_as_coords(network):
     from openpnm.models.geometry.throat_endpoints import spheres_and_cylinders
     end_points = spheres_and_cylinders(network=network)
-    s = (2*network.Nt, 3)
+    s = (2*pnmlib.core.num_throats(network), 3)
     new_coords = np.hstack(list(end_points.values())).reshape(s)
     # new_coords = np.mean(new_coords, axis=1)
     # op.topotools.extend(network=network, pore_coords=new_coords, labels=label)
     return new_coords
 
 
-def plot_patches(
+def draw_network(
     network,
     cmap=None,
     color_by='diameter',
@@ -79,11 +79,11 @@ def plot_patches(
         pore_color = cmap((network[f'pore.{color_by}'] - cmin)/(cmax - cmin))
         throat_color = cmap((network[f'throat.{color_by}'] - cmin)/(cmax - cmin))
     else:
-        pore_color = ['tab:red']*network.Np
-        throat_color = ['tab:blue']*network.Nt
+        pore_color = ['tab:red']*pnmlib.core.num_pores(network)
+        throat_color = ['tab:blue']*pnmlib.core.num_throats(network)
 
     pores = []
-    for p in network.Ps:
+    for p in pnmlib.core.get_pores(network):
         pores.append(
             Circle(
                 xy=network['pore.coords'][p, :2],
@@ -99,12 +99,12 @@ def plot_patches(
         end_points = spheres_and_cylinders(network=network)
     else:
         end_points = network[end_points]
-    s = (network.Nt, 2, 3)
+    s = (pnmlib.core.num_throats(network), 2, 3)
     new_coords = np.hstack(list(end_points.values())).reshape(s)
     vecs = pore_to_pore(network)
     q = np.rad2deg(np.arctan(-vecs[:, 0]/vecs[:, 1]))
     throats = []
-    for t in network.Ts:
+    for t in pnmlib.core.get_throats(network):
         d = network['throat.diameter'][t]
         xy = new_coords[t, :, :2]
         L = np.sqrt(np.sum((xy[1]-xy[0])**2))
@@ -157,7 +157,7 @@ def annotate_pores(
     font_kws = font_defaults | font_kws
     arrow_kws = arrow_defaults | arrow_kws
     if pores is None:
-        pores = network.Ps
+        pores = pnmlib.core.get_pores(network)
     elif pores.dtype == bool:
         pores = np.where(pores)[0]
     if ax is None:
@@ -210,7 +210,7 @@ def annotate_throats(
     if ax is None:
         _, ax = plt.subplots()
     if throats is None:
-        throats = network.Ts
+        throats = pnmlib.core.get_throats(network)
     elif throats.dtype == bool:
         throats = np.where(throats)[0]
     if end_points is None:
@@ -272,12 +272,12 @@ def label_throats(
         _, ax = plt.subplots()
 
     if throats is None:
-        throats = network.Ts
+        throats = pnmlib.core.get_throats(network)
 
     if label_by is None:
-        label_by = network.Ts
-    elif label_by.size < network.Nt:
-        temp = np.zeros(network.Nt)
+        label_by = pnmlib.core.get_throats(network)
+    elif label_by.size < pnmlib.core.num_throats(network):
+        temp = np.zeros(pnmlib.core.num_throats(network))
         temp[throats] = label_by
         label_by = np.copy(temp)
 
@@ -329,11 +329,11 @@ def label_pores(
     if ax is None:
         _, ax = plt.subplots()
     if pores is None:
-        pores = network.Ps
+        pores = pnmlib.core.get_pores(network)
     if label_by is None:
-        label_by = network.Ps
-    elif len(label_by) < network.Np:
-        temp = np.zeros(network.Np)
+        label_by = pnmlib.core.get_pores(network)
+    elif len(label_by) < pnmlib.core.num_pores(network):
+        temp = np.zeros(pnmlib.core.num_pores(network))
         temp[pores] = label_by
         label_by = np.copy(temp)
     coords = network['pore.coords']
@@ -425,10 +425,10 @@ def draw_pores(
         "Network must be 2D for this function to work"
 
     if pores is None:
-        pores = network.Ps
+        pores = pnmlib.core.get_pores(network)
 
     if color_by is not None:
-        if color_by.size == network.Np:
+        if color_by.size == pnmlib.core.num_pores(network):
             color_by = color_by[pores]
         if crange is None:
             crange = (color_by[np.isfinite(color_by)].min(),
@@ -563,10 +563,10 @@ def draw_throats(
         "Network must be 2D for this function to work"
 
     if throats is None:
-        throats = network.Ts
+        throats = pnmlib.core.get_throats(network)
 
     if color_by is not None:
-        if color_by.size == network.Nt:
+        if color_by.size == pnmlib.core.num_throats(network):
             color_by = color_by[throats]
         if crange is None:
             crange = (color_by[np.isfinite(color_by)].min(),
@@ -581,7 +581,7 @@ def draw_throats(
         end_points = spheres_and_cylinders(network=network)
     else:
         end_points = network[end_points]
-    s = (network.Nt, 2, 3)
+    s = (pnmlib.core.num_throats(network), 2, 3)
     new_coords = np.hstack(list(end_points.values())).reshape(s)
     vecs = pore_to_pore(network)
     q = np.rad2deg(np.arctan(-vecs[:, 0]/vecs[:, 1]))
