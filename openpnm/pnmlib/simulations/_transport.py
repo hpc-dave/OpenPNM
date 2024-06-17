@@ -225,6 +225,6 @@ if __name__ == "__main__":
     func = 'a*(x**b)'
     s = get_source_term(func, a=-1000, b=2)
     s['locs'] = [0]
-    A, b, x = solve_reactive(A, b, rxns=s, f=[0, 0], maxiter=100, rtol=1e-12, solver='sp')
+    A, b, x = solve_reactive(A, b, rxns=s, f=[0, 0], maxiter=100, rtol=1e-12, atol=1e-12, solver='sp')
     ax[1].imshow(x.reshape([5, 5]), origin='lower')
     ax[1].set_title("With reaction")

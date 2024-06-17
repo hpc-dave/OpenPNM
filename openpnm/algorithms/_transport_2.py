@@ -4,6 +4,12 @@ from openpnm.topotools import is_fully_connected
 from openpnm.algorithms import Algorithm
 from openpnm import solvers
 from ._solution import SteadyStateSolution, SolutionContainer
+from openpnm.pnmlib.simulations import (
+    init_rhs,
+    init_coefficient_matrix,
+    set_value_bc,
+    set_rate_bc,
+)
 
 
 __all__ = ['Transport']
@@ -31,39 +37,26 @@ class Transport(Algorithm):
             else:
                 raise KeyError(key)
 
-    def build_A(self, gvals):
-        am = create_adjacency_matrix(weights=gvals, fmt='coo')
-        A = spgr.laplacian(am).astype(float)
-        return A
+    def initialize_A(self):
+        row, col = self.network['throat.conns'].T
+        phase = self.project[self.settings['phase']]
+        val = phase[self.settings['conductance']]
+        self.row, self.col, self.val = init_coefficient_matrix(row, col, val)
 
-    def build_b(self):
-        """Initializes the RHS vector, b, with zeros."""
-        b = np.zeros(self.Np, dtype=float)
-        return b
+    def initialize_b(self):
+        row, col = self.network['throat.conns'].T
+        self.b = init_rhs(row, col)
 
-    def apply_BCs(self, A, b, locs, values=None, rates=None):
-        mask = np.zeros_like(b, dtype=False)
-        mask[locs] = True
-        if rates is not None:
-            self.b[locs] = rates
-        if values is not None:
-            f = A.diagonal().mean()
-            # Update b (impose bc values)
-            b[locs] = values * f
-            # Update b (subtract quantities from b to keep A symmetric)
-            x_BC = np.zeros_like(b)
-            x_BC[locs] = b
-            b[~mask] -= (A * x_BC)[~mask]
-            # Update A
-            temp = np.isin(A.row, locs) | np.isin(A.col, locs)
-            # Remove entries from A for all BC rows/cols
-            A.data[temp] = 0
-            # Add diagonal entries back into A
-            datadiag = A.diagonal()
-            datadiag[mask] = np.ones_like(mask, dtype=float) * f
-            A.setdiag(datadiag)
-            A.eliminate_zeros()
-        return A, b
+    def apply_BCs(self):
+        row, col, val, b = self.row, self.col, self.val, self.b
+        if np.any(~np.isnan(self['pore.bc.value'])):
+            locs = np.where(~np.isnan(self['pore.bc.value']))[0]
+            values = self['pore.bc.value'][locs]
+            self.val, self.b = set_value_bc(row, col, val, b, values, locs)
+        if np.any(~np.isnan(self['pore.bc.rate'])):
+            locs = np.where(~np.isnan(self['pore.bc.rate']))[0]
+            rates = self['pore.bc.rate'][locs]
+            self.b = set_rate_bc(b, rates, locs)
 
     def run(self, solver=None, x0=None, verbose=False):
         """
@@ -84,8 +77,6 @@ class Transport(Algorithm):
         None
 
         """
-        if solver is None:
-            solver = getattr(solvers, ws.settings.default_solver)()
         # Perform pre-solve validations
         self._validate_settings()
         self._validate_topology_health()
