@@ -92,7 +92,7 @@ def network_from_csv(filename):
     # boolean values, the dtype 'O' persists. That can lead to difficult
     # to debug errors later on. Therefore here this fix:
     for k, v in dct.items():
-        if type(v[0]) == bool:
+        if type(v[0]) is bool:
             dct[k] = v.astype(bool)
 
     network = Network()
